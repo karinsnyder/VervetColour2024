@@ -40,15 +40,12 @@ predictorVars<- c( "Age", "Prevalence", "Richness", "GCMEAN", "ARMEAN", "Ordinal
 data2 <- data[ -c(4) ]
 
 ## Drop NA
-data3 <- data2[!is.na(data$BlueLUM),]
-data4 <- data3[!is.na(data2$Elo),]
-data5 <- data4[!is.na(data3$RedLUM),]
-data6 <- data5[!is.na(data4$Richness),]
 
+data6 <- na.omit(data2)
 
 ##Load Sociosexual Data
 
-data3 <- read.csv("Data_counts_9Aug.csv", stringsAsFactors = FALSE)
+data_socio <- read.csv("Data_counts_9Aug.csv", stringsAsFactors = FALSE)
 
 ```
 
@@ -96,7 +93,7 @@ power_results <- rbind(power_results, data.frame(Outcome = outcome, Predictor = 
 
 
 
-desktop_path <- "C:/Users/YourUsername/Desktop/power_analysis_results.csv"
+desktop_path <- "C:/Users/karin/OneDrive/Desktop/FINAL_power_analysis_results.csv"
 desktop_path <- gsub("YourUsername", Sys.getenv("USERNAME"), desktop_path)
 write.csv(power_results, file = desktop_path, row.names = FALSE)
 
@@ -113,16 +110,9 @@ library(pwr)  # For power analysis
 # Load necessary library
 library(dplyr)
 
-# Assume data3 is your dataset
-# Rename columns
-data3 <- data3 %>%
-  rename(
-    BlueBY = BlueB.Y,
-    BlueRG = BlueR.G,
-    RedBY = RedB.Y,
-    RedRG = RedR.G
-  )
-
+#Rename columns
+data_socio <- data_socio %>%
+  rename(BlueBY = BlueB.Y, BlueRG = BlueR.G, RedBY = RedB.Y, RedRG = RedR.G)
 
 # Define outcomes and predictors
 outcomes <- c("BlueLUM", "BlueBY", "BlueRG", "RedLUM", "RedBY", "RedRG")
@@ -146,7 +136,7 @@ alpha <- 0.05  # Significance level
 for (outcome in outcomes) {
   for (predictor in predictors) {
     # Fit the linear model for the current combination
-    model <- lm(as.formula(paste(outcome, "~", predictor)), data = data3)
+    model <- lm(as.formula(paste(outcome, "~", predictor)), data = data_socio)
     
     # Extract R-squared value
     R2 <- summary(model)$r.squared
@@ -175,7 +165,7 @@ for (outcome in outcomes) {
 
 
 
-desktop_path <- "C:/Users/ksnyder/Desktop/power_analysis_results_data3.csv"
+desktop_path <- "C:/Users/karin/OneDrive/Desktop/FINAL_power_analysis_results_sociosexual.csv"
 write.csv(power_results, file = desktop_path, row.names = FALSE)
 
 ```
@@ -243,7 +233,7 @@ for (pair in additional_pairs) {
 results$BH_p <- p.adjust(results$Uncorrected_p, method = "BH")
 
 
-desktop_path <- "C:/Users/ksnyder/Desktop/correlations.csv"
+desktop_path <- "C:/Users/karin/OneDrive/Desktop/FINAL_pred_outcome_corrs.csv"
 write.csv(results, file = desktop_path, row.names = FALSE)
 
 
@@ -254,20 +244,10 @@ write.csv(results, file = desktop_path, row.names = FALSE)
 
 
 ```{r}
-library(vegan)
-library(tidyverse)
-library(RColorBrewer)
-
-
-##Load data
-
-
-STDATA<-read.csv("Intramale_ST.csv")
-LTDATA<-read.csv("Intramale_LT.csv")
-
-
+#Load data
+STDATA <- read.csv("Intramale_ST.csv")
+LTDATA <- read.csv("Intramale_LT(1).csv")
 ```
-
 
 
 ##Short Term with Benjamini-Hochberg correction
@@ -306,7 +286,7 @@ print(p_values_corrected_matrix_bh)
 combined_matrix <- cbind(as.data.frame(correlation_matrix$r), as.data.frame(p_values_corrected_matrix_bh))
 colnames(combined_matrix) <- paste0(rep(variables, 2), "_", rep(c("Corr", "PValue"), each = length(variables)))
 
-file_path <- "C:/Users/ksnyder/Desktop/RIICorrs.csv"
+file_path <- "C:/Users/karin/OneDrive/Desktop/FINAL_RII_Corrs_ST.csv"
 
 write.csv(combined_matrix, file = file_path, row.names = TRUE)
 
@@ -345,7 +325,7 @@ print(p_values_corrected_matrix_bh_lt)
 
 combined_matrix_lt <- cbind(as.data.frame(correlation_matrix_lt$r), as.data.frame(p_values_corrected_matrix_bh_lt))
 colnames(combined_matrix_lt) <- paste0(rep(variables_lt, 2), "_", rep(c("Corr", "PValue"), each = length(variables_lt)))
-file_path_lt <- "C:/Users/ksnyder/Desktop/RIICorrsLT.csv"
+file_path_lt <- "C:/Users/karin/OneDrive/Desktop/RII_Corrs_LT.csv"
 write.csv(combined_matrix_lt, file = file_path_lt, row.names = TRUE)
 
 
