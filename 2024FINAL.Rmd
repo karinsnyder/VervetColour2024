@@ -20,6 +20,15 @@ options(repos = c(CRAN = "https://cloud.r-project.org/"))
 library(vegan)
 library(tidyverse)
 library(MuMIn)
+library(car) 
+library(lme4)
+library(lmerTest)  
+library(performance) 
+library(glmmTMB) 
+library(fitdistrplus) 
+library(logspline)
+library(pwr)
+library(Hmisc)
 
 ## Load data
 data <- read.csv("NewData8.csv", stringsAsFactors = FALSE)
@@ -49,13 +58,48 @@ data_socio <- read.csv("Data_counts_9Aug.csv", stringsAsFactors = FALSE)
 
 ```
 
+##Descriptive Statistics- Outcome Variables
+
+```{r}
+# Load necessary libraries
+library(dplyr)
+
+# Select relevant columns and group by Session
+descriptive_stats <- data6 %>% group_by(Session) %>% summarise(
+    BlueLUM_range = range(BlueLUM),
+    BlueLUM_mean = mean(BlueLUM, na.rm = TRUE),
+    BlueLUM_sd = sd(BlueLUM, na.rm = TRUE),
+    
+    BlueBY_range = range(BlueBY),
+    BlueBY_mean = mean(BlueBY, na.rm = TRUE),
+    BlueBY_sd = sd(BlueBY, na.rm = TRUE),
+    
+    BlueRG_range = range(BlueRG),
+    BlueRG_mean = mean(BlueRG, na.rm = TRUE),
+    BlueRG_sd = sd(BlueRG, na.rm = TRUE),
+    
+    RedLUM_range = range(RedLUM),
+    RedLUM_mean = mean(RedLUM, na.rm = TRUE),
+    RedLUM_sd = sd(RedLUM, na.rm = TRUE),
+    
+    RedBY_range = range(RedBY),
+    RedBY_mean = mean(RedBY, na.rm = TRUE),
+    RedBY_sd = sd(RedBY, na.rm = TRUE),
+    
+    RedRG_range = range(RedRG),
+    RedRG_mean = mean(RedRG, na.rm = TRUE),
+    RedRG_sd = sd(RedRG, na.rm = TRUE)
+  )
+
+# Save the results as a CSV file to the specified path
+write.csv(descriptive_stats, "C:/Users/karin/OneDrive/Desktop/FINAL_outcome_descriptive.csv", row.names = FALSE)
+
+```
 
 ##Power analyses Model 1 
 
 ```{r}
 
-library(car)  # For Type III ANOVA
-library(pwr)  # For power analysis
 
 predictors <- c("BlueLUM", "BlueBY", "BlueRG", "RedLUM", "RedBY", "RedRG")
 outcomes <- c("Ordinal", "Prevalence", "Richness", "ARMEAN", "GCMEAN")
@@ -90,9 +134,6 @@ power_result <- pwr.f2.test(u = numPredictors, v = df_error, f2 = f2, sig.level 
     
 power_results <- rbind(power_results, data.frame(Outcome = outcome, Predictor = predictor, R2 = R2, f2 = f2, v = df_error, u = numPredictors,Power = power_result$power))}}
 
-
-
-
 desktop_path <- "C:/Users/karin/OneDrive/Desktop/FINAL_power_analysis_results.csv"
 desktop_path <- gsub("YourUsername", Sys.getenv("USERNAME"), desktop_path)
 write.csv(power_results, file = desktop_path, row.names = FALSE)
@@ -101,14 +142,8 @@ write.csv(power_results, file = desktop_path, row.names = FALSE)
 
 ##Power Analysis Model 2
 
-
 ```{r}
 
-# Load necessary libraries
-library(pwr)  # For power analysis
-
-# Load necessary library
-library(dplyr)
 
 #Rename columns
 data_socio <- data_socio %>%
@@ -116,9 +151,8 @@ data_socio <- data_socio %>%
 
 # Define outcomes and predictors
 outcomes <- c("BlueLUM", "BlueBY", "BlueRG", "RedLUM", "RedBY", "RedRG")
-predictors <- c("COPcount", "PRcount", "MRcount","Ordinal")
+predictors <- c("COP", "PR", "MR","Ordinal", "Session")
 
-# Initialize a data frame to store results
 power_results <- data.frame(Outcome = character(),
                             Predictor = character(),
                             R2 = numeric(),
@@ -128,44 +162,35 @@ power_results <- data.frame(Outcome = character(),
                             Power = numeric(),
                             stringsAsFactors = FALSE)
 
-# Set alpha and degrees of freedom for the error term (v = 15)
 alpha <- 0.05  # Significance level
 
-
-# Loop over each combination of outcome and predictor
 for (outcome in outcomes) {
   for (predictor in predictors) {
     # Fit the linear model for the current combination
     model <- lm(as.formula(paste(outcome, "~", predictor)), data = data_socio)
     
-    # Extract R-squared value
-    R2 <- summary(model)$r.squared
+
+R2 <- summary(model)$r.squared
+
+f2 <- R2 / (1 - R2)
     
-    # Calculate Cohen's f²
-    f2 <- R2 / (1 - R2)
+df_error <- summary(model)$df[2]
     
-    df_error <- summary(model)$df[2]
+numPredictors <- 1  # Only one predictor in each model
     
-    # Number of predictors (u) in the model
-    numPredictors <- 1  # Only one predictor in each model
-    
-    # Perform power analysis (solve for power)
-    power_result <- pwr.f2.test(u = numPredictors, v = df_error, f2 = f2, sig.level = alpha)
-    
-    # Store the results in the data frame
-    power_results <- rbind(power_results, data.frame(Outcome = outcome,
+  
+power_result <- pwr.f2.test(u = numPredictors, v = df_error, f2 = f2, sig.level = alpha)
+
+power_results <- rbind(power_results, data.frame(Outcome = outcome,
                                                      Predictor = predictor,
                                                      R2 = R2,
                                                      f2 = f2,
                                                      v = df_error,
                                                      u = numPredictors,
-                                                     Power = power_result$power))
-  }
-}
+                                                     Power = power_result$power))}}
 
 
-
-desktop_path <- "C:/Users/karin/OneDrive/Desktop/FINAL_power_analysis_results_sociosexual.csv"
+desktop_path <- "C:/Users/karin/OneDrive/Desktop/FINAL2_power_analysis_results_sociosexual.csv"
 write.csv(power_results, file = desktop_path, row.names = FALSE)
 
 ```
@@ -174,14 +199,9 @@ write.csv(power_results, file = desktop_path, row.names = FALSE)
 ## Predictor/Outcome correlations Aug 21
 ```{r}
 
-library(stats)
-library(dplyr)
-
-
 predictors <- c("BlueLUM", "BlueBY", "BlueRG", "RedLUM", "RedBY", "RedRG")
 outcomes <- c("Ordinal", "Prevalence", "Richness", "ARMEAN", "GCMEAN")
 
-# Initialize a data frame to store results
 results <- data.frame(Predictor = character(),
                       Outcome = character(),
                       Correlation = numeric(),
@@ -189,14 +209,13 @@ results <- data.frame(Predictor = character(),
                       BH_p = numeric(),
                       stringsAsFactors = FALSE)
 
-# Loop over each combination of predictor and outcome
 for (pred in predictors) {
   for (out in outcomes) {
     # Calculate Spearman correlation and p-value
     test_result <- cor.test(data6[[pred]], data6[[out]], method = "spearman", use = "complete.obs")
     
-    # Add the results to the results data frame
-    results <- rbind(results, data.frame(Predictor = pred,
+  
+results <- rbind(results, data.frame(Predictor = pred,
                                          Outcome = out,
                                          Correlation = test_result$estimate,
                                          Uncorrected_p = test_result$p.value,
@@ -239,6 +258,378 @@ write.csv(results, file = desktop_path, row.names = FALSE)
 
 ```
 
+##Intermale Analyses
+
+
+## Blue Luminance 
+```{r}
+#model1A_group_maleID <- lmer(BlueLUM ~ Ordinal + Diversity + GCMEAN + log(ARMEAN) + PropInfected + Season + (1|Group) + (1|MaleID), data=data6, na.action = "na.fail")
+#model convergence issues 
+
+#model1A_group <- lmer(BlueLUM ~ Ordinal + Diversity + GCMEAN + log(ARMEAN) + PropInfected + Season + (1|Group), data=data6, na.action = "na.fail")
+#model convergence issues 
+
+#model1A_maleID <- lmer(BlueLUM ~ Ordinal + Diversity + GCMEAN + log(ARMEAN) + PropInfected + Season + (1|MaleID), data=data6, na.action = "na.fail")
+#check_collinearity(model1A_maleID) # low VIF <4
+#options(na.action = na.fail)
+#dd1A_maleID <- dredge(model1A_maleID) # Warning: comparing models fitted by REML
+#options(na.action = na.omit)
+## model convergence issues when dredging, cannot use maleID as random variable
+
+
+## Final model with no random variables: 
+model1A <- lm(BlueLUM ~ Ordinal + Diversity + GCMEAN + log(ARMEAN) + PropInfected + Season, data=data6, na.action = "na.fail")
+check_collinearity(model1A) # low VIF <4
+
+#dredge model selection
+options(na.action = na.fail) 
+dredge1A <- dredge(model1A)
+options(na.action = na.omit)
+
+#model averaging
+dredge1A_modelaverage <- model.avg(dredge1A, subset = delta <= 7)
+summary(dredge1A_modelaverage) 
+#Ordinal Rank is the only significant variable 
+
+#Getting 95% confidence intervals 
+confint(dredge1A_modelaverage, full=TRUE) 
+#confirms ordinal rank is the only significant variable 
+```
+
+
+## Blue B/Y Channel 
+```{r}
+#model1B_group_maleID <- lmer(BlueBY ~ Ordinal + Diversity + GCMEAN + log(ARMEAN) + PropInfected + Season + (1|Group) + (1|MaleID), data=data6, na.action = "na.fail")
+#check_collinearity(model1B_group_maleID) # low VIF < 3
+#options(na.action = na.fail)
+#dd1B_group_maleID <- dredge(model1B_group_maleID) ## boundary (singular) fit: see help('isSingular')
+#options(na.action = na.omit)
+## model convergence issues when dredging, cannot use group and maleID as random variable 
+
+#model1B_group <- lmer(BlueBY ~ Ordinal + Diversity + GCMEAN + log(ARMEAN) + PropInfected + Season + (1|Group), data=data6, na.action = "na.fail")
+## model convergence issues
+
+#model1B_maleID <- lmer(BlueBY ~ Ordinal + Diversity + GCMEAN + log(ARMEAN) + PropInfected + Season + (1|MaleID), data=data6, na.action = "na.fail")
+#check_collinearity(model1B_maleID) # low VIF < 4
+#options(na.action = na.fail)
+#dd1B_maleID <- dredge(model1B_maleID) ## boundary (singular) fit: see help('isSingular')
+#options(na.action = na.omit)
+## model convergence issues when dredging, cannot use maleID as random variable
+
+
+## Final model with no random variables: 
+model1B <- lm(BlueBY ~ Ordinal + Diversity + GCMEAN + log(ARMEAN) + PropInfected + Season, data=data6, na.action = "na.fail")
+check_collinearity(model1B) # low VIF < 4
+
+#dredge model selection
+options(na.action = na.fail) 
+dredge1B <- dredge(model1B)
+options(na.action = na.omit)
+
+#model averaging
+dredge1B_modelaverage <- model.avg(dredge1B, subset = delta <= 7)
+summary(dredge1B_modelaverage) 
+#No significant variables 
+
+#Getting 95% confidence intervals 
+confint(dredge1B_modelaverage, full=TRUE) 
+#confirms NULL MODEL is the best model 
+
+```
+
+
+## Blue R/G Channel
+```{r}
+#model1C_group_maleID <- lmer(BlueRG ~ Ordinal + Diversity + GCMEAN + log(ARMEAN) + PropInfected + Season + (1|Group) + (1|MaleID), data=data6, na.action = "na.fail")
+#check_collinearity(model1C_group_maleID) # low VIF >3
+#options(na.action = na.fail)
+#dd1C_group_maleID <- dredge(model1C_group_maleID) ## boundary (singular) fit: see help('isSingular')
+#options(na.action = na.omit)
+## model convergence issues when dredging, cannot use group and maleID as random variable 
+
+#model1C_group <- lmer(BlueRG ~ Ordinal + Diversity + GCMEAN + log(ARMEAN) + PropInfected + Season + (1|Group), data=data6, na.action = "na.fail")
+## model convergence issues 
+
+
+#model1C_maleID <- lmer(BlueRG ~ Ordinal + Diversity + GCMEAN + log(ARMEAN) + PropInfected + Season + (1|MaleID), data=data6, na.action = "na.fail")
+#check_collinearity(model1C_maleID) # low VIF >3
+#options(na.action = na.fail)
+#dd1C_maleID <- dredge(model1C_maleID) ## boundary (singular) fit: see help('isSingular')
+#options(na.action = na.omit)
+## model convergence issues when dredging, cannot use maleID as random variable
+
+
+## Final model with no random variables: 
+model1C <- lm(BlueRG ~ Ordinal + Diversity + GCMEAN + log(ARMEAN) + PropInfected + Season, data=data6, na.action = "na.fail")
+check_collinearity(model1C) # low VIF < 4
+
+#dredge model selection
+options(na.action = na.fail) 
+dredge1C <- dredge(model1C)
+options(na.action = na.omit)
+
+#model averaging
+dredge1C_modelaverage <- model.avg(dredge1C, subset = delta <= 7)
+summary(dredge1C_modelaverage) 
+#No significant variables 
+
+#Getting 95% confidence intervals 
+confint(dredge1C_modelaverage, full=TRUE) 
+#confirms NULL MODEL is the best model 
+```
+
+
+## Red Luminance
+```{r}
+#model1D_group_maleID <- lmer(RedLUM ~ Ordinal + Diversity + GCMEAN + log(ARMEAN) + PropInfected + Season + (1|Group) + (1|MaleID), data=data6, na.action = "na.fail")
+## model convergence issues
+
+#model1D_group <- lmer(RedLUM ~ Ordinal + Diversity + GCMEAN + log(ARMEAN) + PropInfected + Season + (1|Group), data=data6, na.action = "na.fail")
+## model convergence issues
+
+#model1D_maleID <- lmer(RedLUM ~ Ordinal + Diversity + GCMEAN + log(ARMEAN) + PropInfected + Season + (1|MaleID), data=data6, na.action = "na.fail")
+#check_collinearity(model1D_maleID) # low VIF < 4
+#options(na.action = na.fail)
+#dd1D_maleID <- dredge(model1D_maleID) ## Warning: comparing models fitted by REML
+#options(na.action = na.omit)
+## model convergence issues when dredging, cannot use maleID as random variable
+
+
+## Final model with no random variables: 
+model1D <- lm(RedLUM ~ Ordinal + Diversity + GCMEAN + log(ARMEAN) + PropInfected + Season, data=data6, na.action = "na.fail")
+check_collinearity(model1D) # low VIF < 4
+
+#dredge model selection
+options(na.action = na.fail) 
+dredge1D <- dredge(model1D)
+options(na.action = na.omit)
+
+#model averaging
+dredge1D_modelaverage <- model.avg(dredge1D, subset = delta <= 7)
+summary(dredge1D_modelaverage) 
+#No significant variables 
+
+#Getting 95% confidence intervals 
+confint(dredge1D_modelaverage, full=TRUE) 
+#confirms NULL MODEL is the best model 
+```
+
+
+## Red B/Y Channel
+```{r}
+#model1E_group_maleID <- lmer(RedBY ~ Ordinal + Diversity + GCMEAN + log(ARMEAN) + PropInfected + Season + (1|Group) + (1|MaleID), data=data6, na.action = "na.fail")
+## model convergence issues 
+
+#model1E_group <- lmer(RedBY ~ Ordinal + Diversity + GCMEAN + log(ARMEAN) + PropInfected + Season + (1|Group), data=data6, na.action = "na.fail")
+## model convergence issues 
+
+#model1E_maleID <- lmer(RedBY ~ Ordinal + Diversity + GCMEAN + log(ARMEAN) + PropInfected + Season + (1|MaleID), data=data6, na.action = "na.fail")
+## model convergence issues 
+
+## Final model with no random variables: 
+model1E <- lm(RedBY ~ Ordinal + Diversity + GCMEAN + log(ARMEAN) + PropInfected + Season, data=data6, na.action = "na.fail")
+check_collinearity(model1E) # low VIF < 4
+
+#dredge model selection
+options(na.action = na.fail) 
+dredge1E <- dredge(model1E)
+options(na.action = na.omit)
+
+#model averaging
+dredge1E_modelaverage <- model.avg(dredge1E, subset = delta <= 7)
+summary(dredge1E_modelaverage) 
+#NULL model is best model 
+
+#Getting 95% confidence intervals 
+confint(dredge1E_modelaverage, full=TRUE) 
+#confirms NULL model 
+
+```
+
+
+## Red R/G Channel
+```{r}
+#model1F_group_maleID <- lmer(RedRG ~ Ordinal + Diversity + GCMEAN + log(ARMEAN) + PropInfected + Season + (1|Group) + (1|MaleID), data=data6, na.action 
+## model convergence issues 
+
+#model1F_group <- lmer(RedRG ~ Ordinal + Diversity + GCMEAN + log(ARMEAN) + PropInfected + Season + (1|Group), data=data6, na.action = "na.fail")
+#check_collinearity(model1F_group) ## low VIF > 4
+#options(na.action = na.fail)
+#dd1F_group <- dredge(model1F_group) ## boundary (singular) fit: see help('isSingular')
+##options(na.action = na.omit)
+## model convergence issues when dredging, cannot use group as random variable 
+
+#model1F_maleID <- lmer(RedRG ~ Ordinal + Diversity + GCMEAN + log(ARMEAN) + PropInfected + Season + (1|MaleID), data=data6, na.action = "na.fail")
+## model convergence issues 
+
+
+## Final model with no random variables: 
+model1F <- lm(RedRG ~ Ordinal + Diversity + GCMEAN + log(ARMEAN) + PropInfected + Season, data=data6, na.action = "na.fail")
+check_collinearity(model1F) # low VIF > 4
+
+#dredge model selection
+options(na.action = na.fail) 
+dredge1F <- dredge(model1F)
+options(na.action = na.omit)
+
+#model averaging
+dredge1F_modelaverage <- model.avg(dredge1F, subset = delta <= 7)
+summary(dredge1F_modelaverage) 
+#Ordinal rank is significant 
+
+#Getting 95% confidence intervals 
+confint(dredge1F_modelaverage, full=TRUE) 
+#confirms ordinal rank is significant 
+
+```
+
+
+# Sociosexual Analysis (Model 2)
+
+## Load data for model 2
+```{r}
+
+data7 <- read.csv("/Users/Taylor/Downloads/Publications/Snyder et al., Sexual Signalling/Sept 15 2024 Revisions/FINAL_Sociosexual_dta_update.csv", stringsAsFactors = FALSE)
+```
+
+## Copulations  
+```{r}
+## MaleID and group as random variables 
+#model2A_group_maleID <- glmer(COPcount ~ offset(log(FollowTime)) + BlueR.G + BlueLUM + RedLUM + BlueB.Y + RedB.Y + RedR.G + Ordinal + Season + (1|Group) + (1|MaleID), family = poisson, data = data7, na.action = "na.fail") 
+#model convergence issues 
+
+## Male ID as random variable
+#model2A_maleID <- glmer(COPcount ~ offset(log(FollowTime)) + BlueR.G + BlueLUM + RedLUM + BlueB.Y + RedB.Y + RedR.G + Ordinal + Season + (1|MaleID), family = poisson, data = data7, na.action = "na.fail") 
+#check_collinearity(model2A_maleID) # low VIF (<4)
+#check_overdispersion(model2A_maleID) 
+#OVER DISPERSION DETECTED (dispersion ratio: 1.649)
+
+# re-run as negative binomial to fix over-dispersion 
+#model2A_maleID_NB <- glmer.nb(COPcount ~ offset(log(FollowTime)) + BlueR.G + BlueLUM + RedLUM + BlueB.Y + RedB.Y + RedR.G + Ordinal + Season + (1|MaleID), data = data7, na.action = "na.fail") 
+#model convergence issues 
+
+
+## group as random variable 
+#model2A_group <- glmer(COPcount ~ offset(log(FollowTime)) + BlueR.G + BlueLUM + RedLUM + BlueB.Y + RedB.Y + RedR.G + Ordinal + Season + (1|Group), family = poisson, data = data7, na.action = "na.fail") 
+#check_collinearity(model2A_group) # low VIF (<4)
+#check_overdispersion(model2A_group) 
+#OVER DISPERSION DETECTED (dispersion ratio: 1.785)
+
+# re-run as negative binomial to fix over-dispersion 
+#model2A_group_NB <- glmer.nb(COPcount ~ offset(log(FollowTime)) + BlueR.G + BlueLUM + RedLUM + BlueB.Y + RedB.Y + RedR.G + Ordinal + Season + (1|Group), data = data7, na.action = "na.fail") 
+#model convergence issues (will try without randoms)
+
+
+## No random variables 
+#model2A <- glm(COPcount ~ offset(log(FollowTime)) + BlueR.G + BlueLUM + RedLUM + BlueB.Y + RedB.Y + RedR.G + Ordinal + Season, family = poisson, data = data7, na.action = "na.fail") 
+#check_collinearity(model2A) # low VIF (<4)
+#check_overdispersion(model2A) 
+#OVER DISPERSION DETECTED (dispersion ratio: 1.717)
+
+# re-run as negative binomial to fix over-dispersion 
+model2A_NB <- glm.nb(COPcount ~ offset(log(FollowTime)) + BlueR.G + BlueLUM + RedLUM + BlueB.Y + RedB.Y + RedR.G + Ordinal + Season, data = data7, na.action = "na.fail", control=glm.control(maxit=50)) 
+summary(model2A_NB)
+check_collinearity(model2A_NB) # low VIF (<4)
+check_overdispersion(model2A_NB) # no overdispersion 
+
+
+#dredge model selection 
+options(na.action = na.fail)
+dredge_model2A_NB <- dredge(model2A_NB)
+options(na.action = "na.omit")
+
+#model averaging 
+model2A_NB_modelaverage <- model.avg(dredge_model2A_NB, subset = delta <= 7)
+summary(model2A_NB_modelaverage) #No significant variables 
+
+#Getting 95% confidence intervals
+confint(model2A_NB_modelaverage, full=TRUE) #confirms NULL model is best model
+
+```
+
+
+## Mate Presentations 
+```{r}
+## MaleID and group as random variables 
+#model2B_group_maleID <- glmer(PRcount ~ offset(log(FollowTime)) + BlueR.G + BlueLUM + RedLUM + BlueB.Y + RedB.Y + RedR.G + Ordinal + Season + (1|Group) + (1|MaleID), family = poisson, data = data7, na.action = "na.fail") 
+#model convergence issues 
+
+## group as random variable 
+#model2B_group <- glmer(PRcount ~ offset(log(FollowTime)) + BlueR.G + BlueLUM + RedLUM + BlueB.Y + RedB.Y + RedR.G + Ordinal + Season + (1|Group), family = poisson, data = data7, na.action = "na.fail") 
+#model convergence issues 
+
+## Male ID as random variable
+#model2B_maleID <- glmer(PRcount ~ offset(log(FollowTime)) + BlueR.G + BlueLUM + RedLUM + BlueB.Y + RedB.Y + RedR.G + Ordinal + Season + (1|MaleID), family = poisson, data = data7, na.action = "na.fail") 
+#model convergence issues 
+
+## No random variables
+model2B <- glm(PRcount ~ offset(log(FollowTime)) + BlueR.G + BlueLUM + RedLUM + BlueB.Y + RedB.Y + RedR.G + Ordinal + Season, family = poisson, data = data7, na.action = "na.fail") 
+check_collinearity(model2B) # low VIF (<6)
+check_overdispersion(model2B) # no over dispersion 
+
+#dredge model selection
+options(na.action = na.fail)
+dredge_model2B <- dredge(model2B)
+options(na.action = "na.omit")
+
+#model averaging No random variables
+model2B_modelaverage <- model.avg(dredge_model2B, subset = delta <= 7)
+summary(model2B_modelaverage) #RedLUM and Season are significant  
+
+#Getting 95% confidence intervals No random variables
+confint(model2B_modelaverage, full=TRUE) #confirms RedLUM and Season are significant  
+
+```
+
+## Mate Refusals 
+```{r}
+## MaleID and group as random variables
+#model2C_group_maleID <- glmer(MRcount ~ offset(log(FollowTime)) + BlueR.G + BlueLUM + RedLUM + BlueB.Y + RedB.Y + RedR.G + Ordinal + Season + (1|Group) + (1|MaleID), family = poisson, data = data7, na.action = "na.fail") 
+#model convergence issues 
+
+## group as random variable 
+#model2C_group <- glmer(MRcount ~ offset(log(FollowTime)) + BlueR.G + BlueLUM + RedLUM + BlueB.Y + RedB.Y + RedR.G + Ordinal + Season + (1|Group), family = poisson, data = data7, na.action = "na.fail") 
+#model convergence issues 
+
+## Male ID as random variable 
+#model2C_maleID <- glmer(MRcount ~ offset(log(FollowTime)) + BlueR.G + BlueLUM + RedLUM + BlueB.Y + RedB.Y + RedR.G + Ordinal + Season + (1|MaleID), family = poisson, data = data7, na.action = "na.fail") 
+#model convergence issues 
+
+## No random variables 
+#model2C <- glm(MRcount ~ offset(log(FollowTime)) + BlueR.G + BlueLUM + RedLUM + BlueB.Y + RedB.Y + RedR.G + Ordinal + Season, family = poisson, data = data7, na.action = "na.fail") 
+#check_collinearity(model2C) ## VIF > 8 
+#check_overdispersion(model2C) 
+# OVER DISPERSION DETECTED (RATIO = 2.025) 
+
+# re-run as negative binomial to fix over-dispersion 
+#model2C_NB <- glmer.nb(MRcount ~ offset(log(FollowTime)) + BlueR.G + BlueLUM + RedLUM + BlueB.Y + RedB.Y + RedR.G + Ordinal + Season + (1|Group), data = data7, control=glmerControl(optCtrl=list(maxfun=30000)), na.action= "na.fail") # Warning: NaNs produced
+#check_collinearity(model2C_NB) ## VIF < 8 
+#check_overdispersion(model2C_NB) #OVERDISPERSION DETECTED (RATIO = 2.025)
+
+## re-run as quasi-poisson 
+#model2C_QP <- glm(MRcount ~ offset(log(FollowTime)) + BlueR.G + BlueLUM + RedLUM + BlueB.Y + RedB.Y + RedR.G + Ordinal + Season, family = quasipoisson, data = data7, na.action = "na.fail") 
+#check_collinearity(model2C_QP) ## VIF > 8 
+#check_overdispersion(model2C_QP) #OVERDISPERSION DETECTED (RATIO = 2.025)
+
+## zero inflated poisson
+#model2C_group_maleID <-glmmTMB(MRcount ~ offset(log(FollowTime)) + BlueR.G + BlueLUM + RedLUM + BlueB.Y + RedB.Y + RedR.G + Ordinal + Season, data = data7, family = poisson() , ziformula=~1)
+#check_collinearity(model2C_group_maleID) # VIF < 8
+#check_zeroinflation(model2C_group_maleID) # model ok (no zero inflation)
+#check_overdispersion(model2C_group_maleID) #OVERDISPERSION DETECTED (RATIO = 2.121)
+
+## zero-inflated negative binomial 2 
+#model2C_group_maleID_NB <- update(model2C_group_maleID,family=nbinom2)
+#model failed to converge
+
+## zero-inflated negative binomial 1 
+#model2C_group_maleID_NB <- update(model2C_group_maleID,family=nbinom1)
+#model failed to converge
+
+## Mating refusals = extreme zero inflation, cannot analyze the data
+
+```
+
+
 
 ##Intramale Analyses
 
@@ -252,9 +643,7 @@ LTDATA <- read.csv("Intramale_LT(1).csv")
 
 ##Short Term with Benjamini-Hochberg correction
 ```{r}
-# Load necessary libraries
-if (!require("Hmisc")) install.packages("Hmisc", dependencies=TRUE)
-library(Hmisc)
+
 
 # Select the relevant columns
 variables <- c('BLUMST', 'BBYST', 'BRGST', 'RLUMST', 'RBYST', 'RRGST', 'ORDST', 'PREVST', 'RCHST', 'GCST', 'ARST')
