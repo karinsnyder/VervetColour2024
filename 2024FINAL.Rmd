@@ -92,7 +92,7 @@ descriptive_stats <- data6 %>% group_by(Session) %>% summarise(
   )
 
 # Save the results as a CSV file to the specified path
-write.csv(descriptive_stats, "C:/Users/karin/OneDrive/Desktop/FINAL_outcome_descriptive.csv", row.names = FALSE)
+#write.csv(descriptive_stats, "C:/Users/karin/OneDrive/Desktop/FINAL_outcome_descriptive.csv", row.names = FALSE)
 
 ```
 
@@ -136,7 +136,7 @@ power_results <- rbind(power_results, data.frame(Outcome = outcome, Predictor = 
 
 desktop_path <- "C:/Users/karin/OneDrive/Desktop/FINAL_power_analysis_results.csv"
 desktop_path <- gsub("YourUsername", Sys.getenv("USERNAME"), desktop_path)
-write.csv(power_results, file = desktop_path, row.names = FALSE)
+#write.csv(power_results, file = desktop_path, row.names = FALSE)
 
 ```
 
@@ -191,7 +191,7 @@ power_results <- rbind(power_results, data.frame(Outcome = outcome,
 
 
 desktop_path <- "C:/Users/karin/OneDrive/Desktop/FINAL2_power_analysis_results_sociosexual.csv"
-write.csv(power_results, file = desktop_path, row.names = FALSE)
+#write.csv(power_results, file = desktop_path, row.names = FALSE)
 
 ```
 
@@ -253,7 +253,7 @@ results$BH_p <- p.adjust(results$Uncorrected_p, method = "BH")
 
 
 desktop_path <- "C:/Users/karin/OneDrive/Desktop/FINAL_pred_outcome_corrs.csv"
-write.csv(results, file = desktop_path, row.names = FALSE)
+#write.csv(results, file = desktop_path, row.names = FALSE)
 
 
 ```
@@ -275,6 +275,11 @@ write.csv(results, file = desktop_path, row.names = FALSE)
 #dd1A_maleID <- dredge(model1A_maleID) # Warning: comparing models fitted by REML
 #options(na.action = na.omit)
 ## model convergence issues when dredging, cannot use maleID as random variable
+
+#Change column headings
+
+data6 <- data6 %>%
+  rename(Diversity = Richness,PropInfected = Prevalence, Season = Session)
 
 
 ## Final model with no random variables: 
@@ -489,7 +494,7 @@ confint(dredge1F_modelaverage, full=TRUE)
 ## Load data for model 2
 ```{r}
 
-data7 <- read.csv("/Users/Taylor/Downloads/Publications/Snyder et al., Sexual Signalling/Sept 15 2024 Revisions/FINAL_Sociosexual_dta_update.csv", stringsAsFactors = FALSE)
+#data7 <- read.csv("/Users/Taylor/Downloads/Publications/Snyder et al., Sexual Signalling/Sept 15 2024 Revisions/FINAL_Sociosexual_dta_update.csv", stringsAsFactors = FALSE)
 ```
 
 ## Copulations  
@@ -525,6 +530,13 @@ data7 <- read.csv("/Users/Taylor/Downloads/Publications/Snyder et al., Sexual Si
 #check_collinearity(model2A) # low VIF (<4)
 #check_overdispersion(model2A) 
 #OVER DISPERSION DETECTED (dispersion ratio: 1.717)
+
+#Rename dataframe
+data7 <- data_socio
+
+#Change column headings
+data7 <- data7 %>%
+  rename(Diversity = Richness,PropInfected = Prevalence, Season = Session)
 
 # re-run as negative binomial to fix over-dispersion 
 model2A_NB <- glm.nb(COPcount ~ offset(log(FollowTime)) + BlueR.G + BlueLUM + RedLUM + BlueB.Y + RedB.Y + RedR.G + Ordinal + Season, data = data7, na.action = "na.fail", control=glm.control(maxit=50)) 
@@ -677,7 +689,7 @@ colnames(combined_matrix) <- paste0(rep(variables, 2), "_", rep(c("Corr", "PValu
 
 file_path <- "C:/Users/karin/OneDrive/Desktop/FINAL_RII_Corrs_ST.csv"
 
-write.csv(combined_matrix, file = file_path, row.names = TRUE)
+#write.csv(combined_matrix, file = file_path, row.names = TRUE)
 
 ```
 
@@ -715,7 +727,7 @@ print(p_values_corrected_matrix_bh_lt)
 combined_matrix_lt <- cbind(as.data.frame(correlation_matrix_lt$r), as.data.frame(p_values_corrected_matrix_bh_lt))
 colnames(combined_matrix_lt) <- paste0(rep(variables_lt, 2), "_", rep(c("Corr", "PValue"), each = length(variables_lt)))
 file_path_lt <- "C:/Users/karin/OneDrive/Desktop/RII_Corrs_LT.csv"
-write.csv(combined_matrix_lt, file = file_path_lt, row.names = TRUE)
+#write.csv(combined_matrix_lt, file = file_path_lt, row.names = TRUE)
 
 
 ```
