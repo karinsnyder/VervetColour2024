@@ -3,9 +3,84 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Page</title>
+    <title>Sexual signaling and sociosexual behaviours in relation to rank, parasites, hormones, and age in male vervet monkeys (Chlorocebus pygerythrus) in Uganda</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+            color: #333;
+            margin: 20px;
+        }
+        h1 {
+            color: #2c3e50;
+        }
+        pre {
+            background-color: #f4f4f4;
+            border: 1px solid #ddd;
+            padding: 10px;
+            overflow-x: auto;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        code {
+            font-family: "Courier New", Courier, monospace;
+            color: #e74c3c;
+        }
+    </style>
 </head>
 <body>
-    <h1>Sexual signaling and sociosexual behaviours in relation to rank, parasites, hormones, and age in male vervet monkeys (Chlorocebus pygerythrus) in Uganda </h1>
+
+    <h2>Load Libraries and Data</h2>
+    <pre><code>```{r}
+## Libraries
+library(vegan)
+library(tidyverse)
+library(MuMIn)
+library(car) 
+library(lme4)
+library(lmerTest)  
+library(performance) 
+library(glmmTMB) 
+library(fitdistrplus) 
+library(logspline)
+library(pwr)
+library(Hmisc)
+
+## Load data
+data <- read.csv("NewData8.csv", stringsAsFactors = FALSE)
+data[data == "#VALUE!"] <- NA ## convert Excel errors to NA
+data[,15:22] <- apply(data[,15:22], 2, as.numeric)
+data$AgeClass <- as.factor(data$AgeClass) ## convert ageclass to factor
+
+
+## Select response variables
+responseVars <- c("BlueLUM","BlueBY","BlueRG","RedLUM","RedBY", "RedRG")
+
+
+## Select predictor variables
+predictorVars<- c( "Age", "Prevalence", "Richness", "GCMEAN", "ARMEAN", "Ordinal")
+
+
+#Drop AgeClass
+data2 <- data[ -c(4) ]
+
+## Drop NA
+
+data6 <- na.omit(data2)
+
+##Load Sociosexual Data
+
+data_socio <- read.csv("Data_counts_9Aug.csv", stringsAsFactors = FALSE)
+
+```</code></pre>
+
+    <h2>Code Snippet 2</h2>
+    <pre><code># Rename dataframe
+data7 <- data_socio
+rm(data_socio)</code></pre>
+
+    <h2>Code Snippet 3</h2>
+    <pre><code># Example of correlation analysis
+cor.test(data6$Diversity, data6$PropInfected, method = "spearman")</code></pre>
 </body>
 </html>
