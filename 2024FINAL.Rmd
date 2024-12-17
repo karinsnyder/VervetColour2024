@@ -91,8 +91,7 @@ descriptive_stats <- data6 %>% group_by(Session) %>% summarise(
     RedRG_sd = sd(RedRG, na.rm = TRUE)
   )
 
-# Save the results as a CSV file to the specified path
-#write.csv(descriptive_stats, "C:/Users/karin/OneDrive/Desktop/FINAL_outcome_descriptive.csv", row.names = FALSE)
+
 
 ```
 
@@ -134,9 +133,6 @@ power_result <- pwr.f2.test(u = numPredictors, v = df_error, f2 = f2, sig.level 
     
 power_results <- rbind(power_results, data.frame(Outcome = outcome, Predictor = predictor, R2 = R2, f2 = f2, v = df_error, u = numPredictors,Power = power_result$power))}}
 
-desktop_path <- "C:/Users/karin/OneDrive/Desktop/FINAL_power_analysis_results.csv"
-desktop_path <- gsub("YourUsername", Sys.getenv("USERNAME"), desktop_path)
-#write.csv(power_results, file = desktop_path, row.names = FALSE)
 
 ```
 
@@ -190,8 +186,6 @@ power_results <- rbind(power_results, data.frame(Outcome = outcome,
                                                      Power = power_result$power))}}
 
 
-desktop_path <- "C:/Users/karin/OneDrive/Desktop/FINAL2_power_analysis_results_sociosexual.csv"
-#write.csv(power_results, file = desktop_path, row.names = FALSE)
 
 ```
 
@@ -252,8 +246,6 @@ for (pair in additional_pairs) {
 results$BH_p <- p.adjust(results$Uncorrected_p, method = "BH")
 
 
-desktop_path <- "C:/Users/karin/OneDrive/Desktop/FINAL_pred_outcome_corrs.csv"
-#write.csv(results, file = desktop_path, row.names = FALSE)
 
 
 ```
@@ -491,12 +483,6 @@ confint(dredge1F_modelaverage, full=TRUE)
 
 # Sociosexual Analysis (Model 2)
 
-## Load data for model 2
-```{r}
-
-#data7 <- read.csv("/Users/Taylor/Downloads/Publications/Snyder et al., Sexual Signalling/Sept 15 2024 Revisions/FINAL_Sociosexual_dta_update.csv", stringsAsFactors = FALSE)
-```
-
 ## Copulations  
 ```{r}
 ## MaleID and group as random variables 
@@ -539,7 +525,7 @@ data7 <- data7 %>%
   rename(Diversity = Richness,PropInfected = Prevalence, Season = Session)
 
 # re-run as negative binomial to fix over-dispersion 
-model2A_NB <- glm.nb(COPcount ~ offset(log(FollowTime)) + BlueR.G + BlueLUM + RedLUM + BlueB.Y + RedB.Y + RedR.G + Ordinal + Season, data = data7, na.action = "na.fail", control=glm.control(maxit=50)) 
+model2A_NB <- glm.nb(COPcount ~ offset(log(FollowTime)) + BlueRG + BlueLUM + RedLUM + BlueBY + RedBY + RedRG + Ordinal + Season, data = data7, na.action = "na.fail", control=glm.control(maxit=50)) 
 summary(model2A_NB)
 check_collinearity(model2A_NB) # low VIF (<4)
 check_overdispersion(model2A_NB) # no overdispersion 
@@ -575,7 +561,7 @@ confint(model2A_NB_modelaverage, full=TRUE) #confirms NULL model is best model
 #model convergence issues 
 
 ## No random variables
-model2B <- glm(PRcount ~ offset(log(FollowTime)) + BlueR.G + BlueLUM + RedLUM + BlueB.Y + RedB.Y + RedR.G + Ordinal + Season, family = poisson, data = data7, na.action = "na.fail") 
+model2B <- glm(PRcount ~ offset(log(FollowTime)) + BlueRG + BlueLUM + RedLUM + BlueBY + RedBY + RedRG + Ordinal + Season, family = poisson, data = data7, na.action = "na.fail") 
 check_collinearity(model2B) # low VIF (<6)
 check_overdispersion(model2B) # no over dispersion 
 
@@ -656,7 +642,7 @@ LTDATA <- read.csv("Intramale_LT(1).csv")
 ##Short Term with Benjamini-Hochberg correction
 ```{r}
 
-
+STDATA <- read.csv("Intramale_ST.csv")
 # Select the relevant columns
 variables <- c('BLUMST', 'BBYST', 'BRGST', 'RLUMST', 'RBYST', 'RRGST', 'ORDST', 'PREVST', 'RCHST', 'GCST', 'ARST')
 STDATA_selected <- STDATA[, variables]
@@ -687,9 +673,6 @@ print(p_values_corrected_matrix_bh)
 combined_matrix <- cbind(as.data.frame(correlation_matrix$r), as.data.frame(p_values_corrected_matrix_bh))
 colnames(combined_matrix) <- paste0(rep(variables, 2), "_", rep(c("Corr", "PValue"), each = length(variables)))
 
-file_path <- "C:/Users/karin/OneDrive/Desktop/FINAL_RII_Corrs_ST.csv"
-
-#write.csv(combined_matrix, file = file_path, row.names = TRUE)
 
 ```
 
@@ -698,6 +681,7 @@ file_path <- "C:/Users/karin/OneDrive/Desktop/FINAL_RII_Corrs_ST.csv"
 
 ```{r}
 
+LTDATA <- read.csv("Intramale_LT(1).csv")
 # List of expected columns for LTDATA
 variables_lt <- c('BLUMLT', 'BBYLT', 'BRGLT', 'RLUMLT', 'RBYRT', 'RRGLT', 'ORDLT', 'GCLT', 'ARLT')
 LTDATA_selected <- LTDATA[, variables_lt]
@@ -726,8 +710,7 @@ print(p_values_corrected_matrix_bh_lt)
 
 combined_matrix_lt <- cbind(as.data.frame(correlation_matrix_lt$r), as.data.frame(p_values_corrected_matrix_bh_lt))
 colnames(combined_matrix_lt) <- paste0(rep(variables_lt, 2), "_", rep(c("Corr", "PValue"), each = length(variables_lt)))
-file_path_lt <- "C:/Users/karin/OneDrive/Desktop/RII_Corrs_LT.csv"
-#write.csv(combined_matrix_lt, file = file_path_lt, row.names = TRUE)
+
 
 
 ```
