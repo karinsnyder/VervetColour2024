@@ -30,6 +30,19 @@
     </style>
 </head>
 <body>
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const nav = document.querySelector("nav");
+        const headings = document.querySelectorAll("h1, h2");
+
+        headings.forEach(heading => {
+            const link = document.createElement("a");
+            link.href = `#${heading.id}`;
+            link.textContent = heading.textContent;
+            nav.appendChild(link);
+        });
+    });
+</script>
 
  
     <h1>Sexual signaling and sociosexual behaviours in relation to rank, parasites, hormones, and age in male vervet monkeys (Chlorocebus pygerythrus) in Uganda</h1>
