@@ -56,7 +56,7 @@
     <h3>Authors: Karin P. Snyder, Dina Greenberg, Taylor Fane, Alessandro Filazzola, Gabriela F.
     Mastromonaco and Valérie A.M. Schoof</h3>
     
-    <h2>Load Libraries and Data</h2>
+<h2>Load Libraries and Data</h2>
     <pre><code>```{r}
 ## Libraries
 library(vegan)
@@ -78,14 +78,11 @@ data[data == "#VALUE!"] <- NA ## convert Excel errors to NA
 data[,15:22] <- apply(data[,15:22], 2, as.numeric)
 data$AgeClass <- as.factor(data$AgeClass) ## convert ageclass to factor
 
-
 ## Select response variables
 responseVars <- c("BlueLUM","BlueBY","BlueRG","RedLUM","RedBY", "RedRG")
 
-
 ## Select predictor variables
 predictorVars<- c( "Age", "Prevalence", "Richness", "GCMEAN", "ARMEAN", "Ordinal")
-
 
 #Drop AgeClass
 data2 <- data[ -c(4) ]
@@ -100,8 +97,7 @@ data_socio <- read.csv("Data_counts_9Aug.csv", stringsAsFactors = FALSE)
 
 ```</code></pre>
 
-
-    <h2>Descriptive Statistics- Outcome Variables</h2>
+<h2>Descriptive Statistics- Outcome Variables</h2>
  <pre><code>```{r}
 # Load necessary libraries
 library(dplyr)
@@ -136,7 +132,7 @@ descriptive_stats <- data6 %>% group_by(Session) %>% summarise(
 # Save the results as a CSV file to the specified path
 write.csv(descriptive_stats, "C:/Users/karin/OneDrive/Desktop/FINAL_outcome_descriptive.csv", row.names = FALSE)</code></pre>
     
-        <h2>Power analyses Model 1 </h2>
+<h2>Power analyses Model 1 </h2>
  <pre><code>```{r}
 
 
@@ -177,7 +173,7 @@ desktop_path <- "C:/Users/karin/OneDrive/Desktop/FINAL_power_analysis_results.cs
 desktop_path <- gsub("YourUsername", Sys.getenv("USERNAME"), desktop_path)
 write.csv(power_results, file = desktop_path, row.names = FALSE)</code></pre>
 
-    <h2>Power analyses Model 2 </h2>
+<h2>Power analyses Model 2 </h2>
  <pre><code>```{r}
 
 
@@ -288,8 +284,8 @@ results$BH_p <- p.adjust(results$Uncorrected_p, method = "BH")
 desktop_path <- "C:/Users/karin/OneDrive/Desktop/FINAL_pred_outcome_corrs.csv"
 write.csv(results, file = desktop_path, row.names = FALSE)</code></pre>
     
-    <h1>Intermale Analyses</h1>
-    <h2>Scrotal Luminance</h2>
+<h1>Intermale Analyses</h1>
+<h2>Scrotal Luminance</h2>
  <pre><code>```{r}
 #model1A_group_maleID <- lmer(BlueLUM ~ Ordinal + Diversity + GCMEAN + log(ARMEAN) + PropInfected + Season + (1|Group) + (1|MaleID), data=data6, na.action = "na.fail")
 #model convergence issues 
@@ -329,7 +325,7 @@ confint(dredge1A_modelaverage, full=TRUE)
 #confirms ordinal rank is the only significant variable 
 ```</code></pre>
    
-    <h2>Scrotal B/Y Channel </h2>
+<h2>Scrotal B/Y Channel </h2>
  <pre><code>```{r}
 #model1B_group_maleID <- lmer(BlueBY ~ Ordinal + Diversity + GCMEAN + log(ARMEAN) + PropInfected + Season + (1|Group) + (1|MaleID), data=data6, na.action = "na.fail")
 #check_collinearity(model1B_group_maleID) # low VIF < 3
@@ -368,7 +364,8 @@ confint(dredge1B_modelaverage, full=TRUE)
 #confirms NULL MODEL is the best model 
 
 ```</code></pre>
-    <h2> Scrotal R/G Channel</h2>
+
+<h2> Scrotal R/G Channel</h2>
  <pre><code>```{r}
 #model1C_group_maleID <- lmer(BlueRG ~ Ordinal + Diversity + GCMEAN + log(ARMEAN) + PropInfected + Season + (1|Group) + (1|MaleID), data=data6, na.action = "na.fail")
 #check_collinearity(model1C_group_maleID) # low VIF >3
@@ -380,14 +377,12 @@ confint(dredge1B_modelaverage, full=TRUE)
 #model1C_group <- lmer(BlueRG ~ Ordinal + Diversity + GCMEAN + log(ARMEAN) + PropInfected + Season + (1|Group), data=data6, na.action = "na.fail")
 ## model convergence issues 
 
-
 #model1C_maleID <- lmer(BlueRG ~ Ordinal + Diversity + GCMEAN + log(ARMEAN) + PropInfected + Season + (1|MaleID), data=data6, na.action = "na.fail")
 #check_collinearity(model1C_maleID) # low VIF >3
 #options(na.action = na.fail)
 #dd1C_maleID <- dredge(model1C_maleID) ## boundary (singular) fit: see help('isSingular')
 #options(na.action = na.omit)
 ## model convergence issues when dredging, cannot use maleID as random variable
-
 
 ## Final model with no random variables: 
 model1C <- lm(BlueRG ~ Ordinal + Diversity + GCMEAN + log(ARMEAN) + PropInfected + Season, data=data6, na.action = "na.fail")
@@ -408,7 +403,7 @@ confint(dredge1C_modelaverage, full=TRUE)
 #confirms NULL MODEL is the best model 
 ```</code></pre>
     
-    <h2>Penile Luminance</h2>
+<h2>Penile Luminance</h2>
  <pre><code>```{r}
 #model1D_group_maleID <- lmer(RedLUM ~ Ordinal + Diversity + GCMEAN + log(ARMEAN) + PropInfected + Season + (1|Group) + (1|MaleID), data=data6, na.action = "na.fail")
 ## model convergence issues
@@ -442,7 +437,7 @@ confint(dredge1D_modelaverage, full=TRUE)
 #confirms NULL MODEL is the best model 
 ```</code></pre>
     
-    <h2>Penile B/Y Channel</h2>
+<h2>Penile B/Y Channel</h2>
  <pre><code>```{r}
 #model1E_group_maleID <- lmer(RedBY ~ Ordinal + Diversity + GCMEAN + log(ARMEAN) + PropInfected + Season + (1|Group) + (1|MaleID), data=data6, na.action = "na.fail")
 ## model convergence issues 
@@ -473,7 +468,7 @@ confint(dredge1E_modelaverage, full=TRUE)
 
 ```</code></pre>
     
-        <h2>Penile R/G Channel </h2>
+<h2>Penile R/G Channel </h2>
  <pre><code>```{r}
 #model1F_group_maleID <- lmer(RedRG ~ Ordinal + Diversity + GCMEAN + log(ARMEAN) + PropInfected + Season + (1|Group) + (1|MaleID), data=data6, na.action 
 ## model convergence issues 
@@ -487,7 +482,6 @@ confint(dredge1E_modelaverage, full=TRUE)
 
 #model1F_maleID <- lmer(RedRG ~ Ordinal + Diversity + GCMEAN + log(ARMEAN) + PropInfected + Season + (1|MaleID), data=data6, na.action = "na.fail")
 ## model convergence issues 
-
 
 ## Final model with no random variables: 
 model1F <- lm(RedRG ~ Ordinal + Diversity + GCMEAN + log(ARMEAN) + PropInfected + Season, data=data6, na.action = "na.fail")
@@ -509,8 +503,8 @@ confint(dredge1F_modelaverage, full=TRUE)
 
 ```</code></pre>
     
-    <h1> Sociosexual Analysis (Model 2)</h1>
-    <h2>Copulations</h2>
+<h1> Sociosexual Analysis (Model 2)</h1>
+<h2>Copulations</h2>
  <pre><code>```{r}
 ## MaleID and group as random variables 
 #model2A_group_maleID <- glmer(COPcount ~ offset(log(FollowTime)) + BlueR.G + BlueLUM + RedLUM + BlueB.Y + RedB.Y + RedR.G + Ordinal + Season + (1|Group) + (1|MaleID), family = poisson, data = data7, na.action = "na.fail") 
@@ -526,7 +520,6 @@ confint(dredge1F_modelaverage, full=TRUE)
 #model2A_maleID_NB <- glmer.nb(COPcount ~ offset(log(FollowTime)) + BlueR.G + BlueLUM + RedLUM + BlueB.Y + RedB.Y + RedR.G + Ordinal + Season + (1|MaleID), data = data7, na.action = "na.fail") 
 #model convergence issues 
 
-
 ## group as random variable 
 #model2A_group <- glmer(COPcount ~ offset(log(FollowTime)) + BlueR.G + BlueLUM + RedLUM + BlueB.Y + RedB.Y + RedR.G + Ordinal + Season + (1|Group), family = poisson, data = data7, na.action = "na.fail") 
 #check_collinearity(model2A_group) # low VIF (<4)
@@ -536,7 +529,6 @@ confint(dredge1F_modelaverage, full=TRUE)
 # re-run as negative binomial to fix over-dispersion 
 #model2A_group_NB <- glmer.nb(COPcount ~ offset(log(FollowTime)) + BlueR.G + BlueLUM + RedLUM + BlueB.Y + RedB.Y + RedR.G + Ordinal + Season + (1|Group), data = data7, na.action = "na.fail") 
 #model convergence issues (will try without randoms)
-
 
 ## No random variables 
 #model2A <- glm(COPcount ~ offset(log(FollowTime)) + BlueR.G + BlueLUM + RedLUM + BlueB.Y + RedB.Y + RedR.G + Ordinal + Season, family = poisson, data = data7, na.action = "na.fail") 
@@ -571,7 +563,7 @@ confint(model2A_NB_modelaverage, full=TRUE) #confirms NULL model is best model
 
 ```</code></pre>
 
-        <h2>Mate Presentations</h2>
+<h2>Mate Presentations</h2>
  <pre><code>```{r}
 ## MaleID and group as random variables 
 #model2B_group_maleID <- glmer(PRcount ~ offset(log(FollowTime)) + BlueR.G + BlueLUM + RedLUM + BlueB.Y + RedB.Y + RedR.G + Ordinal + Season + (1|Group) + (1|MaleID), family = poisson, data = data7, na.action = "na.fail") 
@@ -604,7 +596,7 @@ confint(model2B_modelaverage, full=TRUE) #confirms RedLUM and Season are signifi
 
 ```</code></pre>
     
-    <h2>Mate Refusals </h2>
+<h2>Mate Refusals </h2>
  <pre><code>```{r}
 ## MaleID and group as random variables
 #model2C_group_maleID <- glmer(MRcount ~ offset(log(FollowTime)) + BlueR.G + BlueLUM + RedLUM + BlueB.Y + RedB.Y + RedR.G + Ordinal + Season + (1|Group) + (1|MaleID), family = poisson, data = data7, na.action = "na.fail") 
@@ -652,8 +644,8 @@ confint(model2B_modelaverage, full=TRUE) #confirms RedLUM and Season are signifi
 
 ```</code></pre>
 
-     <h1>Intramale Analyses</h1>   
-    <h2>Short Term with Benjamini-Hochberg correction </h2>
+<h1>Intramale Analyses</h1>   
+<h2>Short Term with Benjamini-Hochberg correction </h2>
  <pre><code>```{r}
 
 STDATA <- read.csv("Intramale_ST.csv")
@@ -674,13 +666,10 @@ p_values_corrected_bh <- p.adjust(p_values, method = "BH")
 p_values_corrected_matrix_bh <- matrix(p_values_corrected_bh, nrow = length(variables), ncol = length(variables))
 dimnames(p_values_corrected_matrix_bh) <- list(variables, variables)
 
-
 print("Spearman Correlation Matrix:")
 print(correlation_matrix$r)
 print("Corrected P-Values Matrix (BH):")
 print(p_values_corrected_matrix_bh)
-
-
 
 ##CSV to Desktop:
 
@@ -692,7 +681,8 @@ file_path <- "C:/Users/karin/OneDrive/Desktop/FINAL_RII_Corrs_ST.csv"
 #write.csv(combined_matrix, file = file_path, row.names = TRUE)
 
 ```</code></pre>
-    <h2>Long term with Benjamini-Hochberg correction </h2>
+
+<h2>Long term with Benjamini-Hochberg correction </h2>
  <pre><code>```{r}
 
 LTDATA <- read.csv("Intramale_LT(1).csv")
@@ -721,12 +711,10 @@ print(p_values_corrected_matrix_bh_lt)
 
 ##CSV to Desktop:
 
-
 combined_matrix_lt <- cbind(as.data.frame(correlation_matrix_lt$r), as.data.frame(p_values_corrected_matrix_bh_lt))
 colnames(combined_matrix_lt) <- paste0(rep(variables_lt, 2), "_", rep(c("Corr", "PValue"), each = length(variables_lt)))
 file_path_lt <- "C:/Users/karin/OneDrive/Desktop/RII_Corrs_LT.csv"
 #write.csv(combined_matrix_lt, file = file_path_lt, row.names = TRUE)
-
 
 ```</code></pre>
 
