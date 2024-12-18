@@ -30,37 +30,6 @@
     </style>
 </head>
 <body>
-<script>
-    document.addEventListener("DOMContentLoaded", () => {
-        const nav = document.querySelector("nav");
-        const headings = document.querySelectorAll("h1, h2");
-
-        headings.forEach(heading => {
-            const link = document.createElement("a");
-            link.href = `#${heading.id}`;
-            link.textContent = heading.textContent;
-            nav.appendChild(link);
-        });
-    });
-</script>
-<script>
-    document.addEventListener("DOMContentLoaded", () => {
-        const headings = document.querySelectorAll("h1, h2"); // Select all <h1> and <h2>
-        
-        headings.forEach((heading, index) => {
-            // Create a unique ID by combining the text content (slugified) and the index
-            const id = heading.textContent
-                .toLowerCase()            // Convert text to lowercase
-                .trim()                   // Remove extra spaces
-                .replace(/\s+/g, "-")     // Replace spaces with hyphens
-                .replace(/[^\w-]/g, "")   // Remove non-alphanumeric characters
-                + `-${index}`;           // Add a unique index at the end
-
-            heading.id = id; // Assign the ID to the heading
-        });
-    });
-</script>
-
  
     <h1>Sexual signaling and sociosexual behaviours in relation to rank, parasites, hormones, and age in male vervet monkeys (Chlorocebus pygerythrus) in Uganda</h1>
 
