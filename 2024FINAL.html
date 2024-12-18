@@ -1743,11 +1743,11 @@ confint(model2B_modelaverage, full=TRUE) #confirms RedLUM and Season are signifi
 #model failed to converge
 
 ## Mating refusals = extreme zero inflation, cannot analyze the data</code></pre>
-<p>##Intramale Analyses</p>
+<h1>Intramale Analyses</h1>
 <pre class="r"><code>#Load data
 STDATA &lt;- read.csv(&quot;Intramale_ST.csv&quot;)
 LTDATA &lt;- read.csv(&quot;Intramale_LT(1).csv&quot;)</code></pre>
-<p>##Short Term with Benjamini-Hochberg correction</p>
+<h2>Short Term with Benjamini-Hochberg correction</h2>
 <pre class="r"><code>STDATA &lt;- read.csv(&quot;Intramale_ST.csv&quot;)
 # Select the relevant columns
 variables &lt;- c(&#39;BLUMST&#39;, &#39;BBYST&#39;, &#39;BRGST&#39;, &#39;RLUMST&#39;, &#39;RBYST&#39;, &#39;RRGST&#39;, &#39;ORDST&#39;, &#39;PREVST&#39;, &#39;RCHST&#39;, &#39;GCST&#39;, &#39;ARST&#39;)
@@ -1825,7 +1825,7 @@ print(&quot;Spearman Correlation Matrix:&quot;)</code></pre>
 
 combined_matrix &lt;- cbind(as.data.frame(correlation_matrix$r), as.data.frame(p_values_corrected_matrix_bh))
 colnames(combined_matrix) &lt;- paste0(rep(variables, 2), &quot;_&quot;, rep(c(&quot;Corr&quot;, &quot;PValue&quot;), each = length(variables)))</code></pre>
-<p>##Long term with Benjamini-Hochberg correction</p>
+<h2>Long term with Benjamini-Hochberg correction</h2>
 <pre class="r"><code>LTDATA &lt;- read.csv(&quot;Intramale_LT(1).csv&quot;)
 # List of expected columns for LTDATA
 variables_lt &lt;- c(&#39;BLUMLT&#39;, &#39;BBYLT&#39;, &#39;BRGLT&#39;, &#39;RLUMLT&#39;, &#39;RBYRT&#39;, &#39;RRGLT&#39;, &#39;ORDLT&#39;, &#39;GCLT&#39;, &#39;ARLT&#39;)
